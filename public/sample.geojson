@@ -1,0 +1,60 @@
+{
+  "type": "FeatureCollection",
+  "features": [
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "Coit Tower",
+        "type": "Landmark",
+        "visited": true
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [-122.4058, 37.8024]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "Ferry Building",
+        "type": "Terminal",
+        "visited": false
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [-122.3933, 37.7955]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "Transamerica Pyramid",
+        "type": "Skyscraper",
+        "height": 260
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [-122.4018, 37.7952]
+      }
+    },
+    {
+       "type": "Feature",
+       "properties": {
+           "name": "Golden Gate Park",
+           "type": "Park"
+       },
+       "geometry": {
+           "type": "Polygon",
+           "coordinates": [
+               [
+                   [-122.5115, 37.7694],
+                   [-122.4595, 37.7694],
+                   [-122.4595, 37.7786],
+                   [-122.5115, 37.7786],
+                   [-122.5115, 37.7694]
+               ]
+           ]
+       }
+    }
+  ]
+}
