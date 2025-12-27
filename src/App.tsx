@@ -1,15 +1,18 @@
-import { MainLayout } from './components/Layout/MainLayout';
-import { MapViewer } from './components/Map/MapViewer';
-import { SidePanel } from './components/SidePanel/SidePanel';
+import React, { useState } from 'react';
+import { MenuBar } from './components/Layout/MenuBar';
+import { GeoJsonViewer } from './components/GeoJsonViewer/GeoJsonViewer';
+import type { GeoJSON } from 'geojson';
 
 function App() {
+  const [data, setData] = useState<GeoJSON | null>(null);
+
   return (
-    <>
-      <MainLayout 
-        sidePanel={<SidePanel />}
-        mapPanel={<MapViewer />}
-      />
-    </>
+    <div className="flex flex-col h-screen w-screen bg-gray-950 text-white overflow-hidden">
+      <MenuBar onDataLoad={setData} />
+      <div className="flex-1 overflow-hidden">
+        <GeoJsonViewer data={data} />
+      </div>
+    </div>
   );
 }
 

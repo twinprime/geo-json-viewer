@@ -1,14 +1,18 @@
 import React, { type ReactNode, useEffect, useRef, useState } from 'react';
-import { MenuBar } from './MenuBar';
-import { useAppStore } from '../../store/useAppStore';
 
-interface MainLayoutProps {
+interface GeoJsonViewerLayoutProps {
   sidePanel: ReactNode;
   mapPanel: ReactNode;
+  sidePanelWidth: number;
+  onSidePanelWidthChange: (width: number) => void;
 }
 
-export const MainLayout: React.FC<MainLayoutProps> = ({ sidePanel, mapPanel }) => {
-  const { sidePanelWidth, setSidePanelWidth } = useAppStore();
+export const GeoJsonViewerLayout: React.FC<GeoJsonViewerLayoutProps> = ({ 
+    sidePanel, 
+    mapPanel,
+    sidePanelWidth,
+    onSidePanelWidthChange
+}) => {
   const [isDragging, setIsDragging] = useState(false);
   const startXRef = useRef<number>(0);
   const startWidthRef = useRef<number>(0);
@@ -26,7 +30,7 @@ export const MainLayout: React.FC<MainLayoutProps> = ({ sidePanel, mapPanel }) =
     const onMouseMove = (e: MouseEvent) => {
       const deltaX = e.clientX - startXRef.current;
       const newWidth = Math.max(200, Math.min(startWidthRef.current + deltaX, 800)); // Limits: 200px - 800px
-      setSidePanelWidth(newWidth);
+      onSidePanelWidthChange(newWidth);
     };
 
     const onMouseUp = () => {
@@ -41,12 +45,10 @@ export const MainLayout: React.FC<MainLayoutProps> = ({ sidePanel, mapPanel }) =
       window.removeEventListener('mousemove', onMouseMove);
       window.removeEventListener('mouseup', onMouseUp);
     };
-  }, [isDragging, setSidePanelWidth]);
+  }, [isDragging, onSidePanelWidthChange]);
 
   return (
-    <div className="flex flex-col h-screen w-screen bg-gray-950 text-white overflow-hidden">
-      <MenuBar />
-      <div className="flex flex-1 overflow-hidden">
+    <div className="flex flex-1 overflow-hidden h-full w-full">
         {/* Left Panel: Resizable */}
         <div 
           className="border-r border-gray-700 bg-gray-900 flex flex-col shrink-0 relative"
@@ -67,6 +69,5 @@ export const MainLayout: React.FC<MainLayoutProps> = ({ sidePanel, mapPanel }) =
           {mapPanel}
         </div>
       </div>
-    </div>
   );
 };

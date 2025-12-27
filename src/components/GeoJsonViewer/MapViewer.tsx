@@ -3,14 +3,33 @@ import DeckGL from '@deck.gl/react';
 import { TileLayer } from '@deck.gl/geo-layers';
 import { GeoJsonLayer } from '@deck.gl/layers';
 import { BitmapLayer } from '@deck.gl/layers';
-import { useAppStore } from '../../store/useAppStore';
 import { getFeatureLabel } from '../../utils/geojson';
-import type { PickingInfo } from '@deck.gl/core';
+import type { PickingInfo, MapViewState as ViewState } from '@deck.gl/core';
+import type { GeoJSON } from 'geojson';
+import type { ProcessedFeature } from '../../utils/geojson';
 
+interface MapViewerProps {
+  data: GeoJSON | null;
+  features: ProcessedFeature[];
+  selectedId: string | number | null;
+  highlightedId: string | number | null;
+  viewState: ViewState;
+  
+  onSelect: (id: string | number | null) => void;
+  onHighlight: (id: string | number | null) => void;
+  onViewStateChange: (viewState: ViewState) => void;
+}
 
-
-export const MapViewer: React.FC = () => {
-  const { data, features, selectedId, highlightedId, selectFeature, highlightFeature, viewState, setViewState } = useAppStore();
+export const MapViewer: React.FC<MapViewerProps> = ({ 
+  data, 
+  features, 
+  selectedId, 
+  highlightedId, 
+  viewState,
+  onSelect,
+  onHighlight,
+  onViewStateChange
+}) => {
 
   // Layers
   const layers = [
@@ -51,16 +70,16 @@ export const MapViewer: React.FC = () => {
       // Interaction
       onClick: (info: PickingInfo) => {
         if (info.object) {
-          selectFeature(info.object.id);
+          onSelect(info.object.id);
         } else {
-            selectFeature(null);
+            onSelect(null);
         }
       },
       onHover: (info: PickingInfo) => {
         if (info.object) {
-          highlightFeature(info.object.id);
+          onHighlight(info.object.id);
         } else {
-          highlightFeature(null);
+          onHighlight(null);
         }
       },
       
@@ -109,7 +128,7 @@ export const MapViewer: React.FC = () => {
     <DeckGL
       initialViewState={viewState as any} // Initial view state ignored if viewState is provided controlled.
       viewState={viewState}
-      onViewStateChange={({ viewState }) => setViewState(viewState as any)}
+      onViewStateChange={({ viewState }) => onViewStateChange(viewState as any)}
       controller={true}
       layers={layers}
       getTooltip={({ object }) => object && {

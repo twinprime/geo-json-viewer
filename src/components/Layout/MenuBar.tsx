@@ -1,9 +1,12 @@
 import React, { useRef } from 'react';
-import { useAppStore } from '../../store/useAppStore';
 import { FolderOpen } from 'lucide-react';
+import type { GeoJSON } from 'geojson';
 
-export const MenuBar: React.FC = () => {
-  const loadData = useAppStore((state) => state.loadData);
+interface MenuBarProps {
+  onDataLoad: (data: GeoJSON) => void;
+}
+
+export const MenuBar: React.FC<MenuBarProps> = ({ onDataLoad }) => {
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -14,7 +17,7 @@ export const MenuBar: React.FC = () => {
         try {
           const text = e.target?.result as string;
           const json = JSON.parse(text);
-          loadData(json);
+          onDataLoad(json);
         } catch (error) {
           console.error("Failed to parse GeoJSON", error);
           alert("Invalid GeoJSON file");

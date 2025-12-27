@@ -1,11 +1,27 @@
 import React, { useMemo } from 'react';
-import { useAppStore } from '../../store/useAppStore';
-import { cn } from '../../utils/cn';
-import { getFeatureLabel } from '../../utils/geojson';
+import { cn } from '../../../utils/cn';
+import { getFeatureLabel, type ProcessedFeature } from '../../../utils/geojson';
 import { ChevronRight, MapPin } from 'lucide-react';
 
-export const FileTree: React.FC = () => {
-  const { features, selectedId, highlightedId, selectFeature, highlightFeature, searchQuery, flyToFeature } = useAppStore();
+interface FileTreeProps {
+  features: ProcessedFeature[];
+  selectedId: string | number | null;
+  highlightedId: string | number | null;
+  searchQuery: string;
+  onSelect: (id: string | number | null) => void;
+  onHighlight: (id: string | number | null) => void;
+  onDoubleClick: (id: string | number) => void;
+}
+
+export const FileTree: React.FC<FileTreeProps> = ({ 
+  features, 
+  selectedId, 
+  highlightedId, 
+  searchQuery, 
+  onSelect, 
+  onHighlight, 
+  onDoubleClick 
+}) => {
 
   const filteredFeatures = useMemo(() => {
     if (!searchQuery) return features;
@@ -43,10 +59,10 @@ export const FileTree: React.FC = () => {
             selectedId === feature.id ? "bg-blue-600/30 text-blue-200 hover:bg-blue-600/40" : "hover:bg-gray-800 text-gray-300",
             highlightedId === feature.id && selectedId !== feature.id && "bg-gray-800"
           )}
-          onClick={() => selectFeature(feature.id)}
-          onDoubleClick={() => flyToFeature(feature.id)}
-          onMouseEnter={() => highlightFeature(feature.id)}
-          onMouseLeave={() => highlightFeature(null)}
+          onClick={() => onSelect(feature.id)}
+          onDoubleClick={() => onDoubleClick(feature.id)}
+          onMouseEnter={() => onHighlight(feature.id)}
+          onMouseLeave={() => onHighlight(null)}
         >
           <MapPin size={14} className={selectedId === feature.id ? "text-blue-400" : "text-gray-500"} />
           <span className="truncate flex-1">

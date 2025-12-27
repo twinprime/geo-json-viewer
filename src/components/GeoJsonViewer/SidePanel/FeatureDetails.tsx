@@ -1,11 +1,12 @@
 import React from 'react';
-import { useAppStore } from '../../store/useAppStore';
-import { getFeatureLabel } from '../../utils/geojson';
+import { type ProcessedFeature, getFeatureLabel } from '../../../utils/geojson';
 
-export const FeatureDetails: React.FC = () => {
-  const { features, selectedId } = useAppStore();
+interface FeatureDetailsProps {
+  selectedFeature: ProcessedFeature | undefined;
+}
 
-  const selectedFeature = features.find(f => f.id === selectedId);
+export const FeatureDetails: React.FC<FeatureDetailsProps> = ({ selectedFeature }) => {
+  const selectedId = selectedFeature?.id;
 
   if (!selectedId || !selectedFeature) {
     return (
