@@ -6,7 +6,8 @@
   "module": "./dist/index.js",
   "types": "./dist/index.d.ts",
   "scripts": {
-    "build": "tsc --noEmit && vite build"
+    "build": "tsc --noEmit && vite build",
+    "build-watch": "vite build --watch"
   },
   "dependencies": {
     "@deck.gl/react": "^9.2.5",

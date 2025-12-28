@@ -1,19 +1,19 @@
-import { useState } from 'react';
-import { MenuBar } from './components/Layout/MenuBar';
-import { GeoJsonViewer } from '@geojson-viewer/viewer';
-import type { GeoJSON } from 'geojson';
+import { useState } from "react"
+import { MenuBar } from "./components/Layout/MenuBar"
+import { GeoJsonViewer } from "@geojson-viewer/viewer"
+import type { GeoJSON } from "geojson"
 
 function App() {
-  const [data, setData] = useState<GeoJSON | null>(null);
+  const [data, setData] = useState<GeoJSON | null>(null)
 
   return (
     <div className="flex flex-col h-screen w-screen bg-gray-950 text-white overflow-hidden">
       <MenuBar onDataLoad={setData} />
-      <div className="flex-1 overflow-hidden">
+      <div className="flex-1 overflow-hidden h-full w-full">
         <GeoJsonViewer data={data} />
       </div>
     </div>
-  );
+  )
 }
 
-export default App;
+export default App
