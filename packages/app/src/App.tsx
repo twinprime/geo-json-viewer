@@ -1,6 +1,6 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { MenuBar } from './components/Layout/MenuBar';
-import { GeoJsonViewer } from './components/GeoJsonViewer/GeoJsonViewer';
+import { GeoJsonViewer } from '@geojson-viewer/viewer';
 import type { GeoJSON } from 'geojson';
 
 function App() {

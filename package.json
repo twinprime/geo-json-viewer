@@ -1,6 +1,9 @@
 {
   "name": "geo-json-viewer",
   "private": true,
+  "workspaces": [
+    "packages/*"
+  ],
   "version": "0.0.0",
   "type": "module",
   "scripts": {
@@ -9,21 +12,7 @@
     "lint": "eslint .",
     "preview": "vite preview"
   },
-  "dependencies": {
-    "@deck.gl/react": "^9.2.5",
-    "@math.gl/web-mercator": "^4.1.0",
-    "@tailwindcss/postcss": "^4.1.18",
-    "autoprefixer": "^10.4.23",
-    "clsx": "^2.1.1",
-    "deck.gl": "^9.2.5",
-    "lucide-react": "^0.562.0",
-    "postcss": "^8.5.6",
-    "react": "^19.2.0",
-    "react-dom": "^19.2.0",
-    "tailwind-merge": "^3.4.0",
-    "tailwindcss": "^4.1.18",
-    "zustand": "^5.0.9"
-  },
+
   "devDependencies": {
     "@eslint/js": "^9.39.1",
     "@types/node": "^24.10.1",

@@ -1,0 +1,30 @@
+{
+  "name": "@geojson-viewer/viewer",
+  "version": "1.0.0",
+  "type": "module",
+  "main": "./dist/index.js",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "scripts": {
+    "build": "tsc --noEmit && vite build"
+  },
+  "dependencies": {
+    "@deck.gl/react": "^9.2.5",
+    "@math.gl/web-mercator": "^4.1.0",
+    "clsx": "^2.1.1",
+    "deck.gl": "^9.2.5",
+    "lucide-react": "^0.562.0",
+    "react": "^19.2.0",
+    "react-dom": "^19.2.0",
+    "tailwind-merge": "^3.4.0"
+  },
+  "devDependencies": {
+    "@tailwindcss/postcss": "^4.1.18",
+    "autoprefixer": "^10.4.23",
+    "postcss": "^8.5.6",
+    "tailwindcss": "^4.1.18",
+    "typescript": "~5.9.3",
+    "vite": "^7.2.4",
+    "vite-plugin-dts": "^4.5.4"
+  }
+}
