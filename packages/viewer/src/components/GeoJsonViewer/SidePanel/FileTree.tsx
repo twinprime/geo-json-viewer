@@ -1,7 +1,7 @@
 import React, { useMemo } from "react"
 import { cn } from "../../../utils/cn"
 import { getFeatureLabel, type ProcessedFeature } from "../../../utils/geojson"
-import { ChevronRight, MapPin } from "lucide-react"
+import { ChevronRight } from "lucide-react"
 
 interface FileTreeProps {
   features: ProcessedFeature[]
