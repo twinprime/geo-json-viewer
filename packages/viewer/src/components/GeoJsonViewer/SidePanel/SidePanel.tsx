@@ -29,11 +29,11 @@ export const SidePanel: React.FC<SidePanelProps> = ({
   const selectedFeature = features.find((f) => f.id === selectedId)
 
   return (
-    <div className="flex flex-col flex-1 w-full overflow-hidden">
+    <div className="flex flex-col h-full">
       <div className="flex-none">
         <SearchBar searchQuery={searchQuery} onSearchChange={onSearchChange} />
       </div>
-      <div className="flex-1 overflow-hidden">
+      <div className="flex-1 min-h-0 h-full">
         <FileTree
           features={features}
           selectedId={selectedId}

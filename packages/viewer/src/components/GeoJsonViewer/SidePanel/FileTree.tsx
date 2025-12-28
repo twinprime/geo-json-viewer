@@ -53,7 +53,7 @@ export const FileTree: React.FC<FileTreeProps> = ({
   }
 
   return (
-    <div className="flex flex-col min-h-0 overflow-y-auto">
+    <div className="flex flex-col max-h-full overflow-y-auto m-2">
       {filteredFeatures.map((feature) => (
         <div
           key={feature.id}
@@ -71,12 +71,6 @@ export const FileTree: React.FC<FileTreeProps> = ({
           onMouseEnter={() => onHighlight(feature.id)}
           onMouseLeave={() => onHighlight(null)}
         >
-          <MapPin
-            size={14}
-            className={
-              selectedId === feature.id ? "text-blue-400" : "text-gray-500"
-            }
-          />
           <span className="truncate flex-1">{getFeatureLabel(feature)}</span>
           {selectedId === feature.id && <ChevronRight size={14} />}
         </div>
