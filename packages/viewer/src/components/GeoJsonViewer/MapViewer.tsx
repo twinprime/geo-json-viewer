@@ -3,7 +3,7 @@ import DeckGL from "@deck.gl/react"
 import { TileLayer } from "@deck.gl/geo-layers"
 import { BitmapLayer, GeoJsonLayer } from "@deck.gl/layers"
 import { getFeatureLabel } from "../../utils/geojson"
-import { getColor } from "../../utils/colors"
+import { getColor, adjustBrightness } from "../../utils/colors"
 import type {
   MapViewState,
   PickingInfo,
@@ -66,16 +66,54 @@ export const MapViewer: React.FC<MapViewerProps> = ({
         pointRadiusMinPixels: 4,
 
         // Styling - Base layer always default style (Blue/Black)
-        getFillColor: [0, 120, 255, 100],
-        getLineColor: (d) =>
-          getColor(d.properties?.line_color, [255, 255, 255, 255]),
+        getFillColor: (d) => {
+          const baseColor = [0, 120, 255, 100] as [
+            number,
+            number,
+            number,
+            number,
+          ]
+          const hasSelection = selectedId !== null || highlightedId !== null
+          if (hasSelection) {
+            const isSelected = String(d.id) === String(selectedId)
+            const isHighlighted = String(d.id) === String(highlightedId)
+            if (!isSelected && !isHighlighted) {
+              return adjustBrightness(baseColor, 0.3)
+            }
+          }
+          return baseColor
+        },
+        getLineColor: (d) => {
+          const baseColor = getColor(
+            d.properties?.line_color,
+            [255, 255, 255, 255]
+          )
+          const hasSelection = selectedId !== null || highlightedId !== null
+          if (hasSelection) {
+            const isSelected = String(d.id) === String(selectedId)
+            const isHighlighted = String(d.id) === String(highlightedId)
+            if (!isSelected && !isHighlighted) {
+              return adjustBrightness(baseColor, 0.3)
+            }
+          }
+          return baseColor
+        },
         getLineWidth: 1,
         getPointRadius: 5,
+
+        updateTriggers: {
+          getFillColor: [selectedId, highlightedId],
+          getLineColor: [selectedId, highlightedId],
+        },
 
         // Interaction
         onClick: (info: PickingInfo) => {
           if (info.object) {
-            onSelect(info.object.id)
+            if (String(info.object.id) === String(selectedId)) {
+              onSelect(null)
+            } else {
+              onSelect(info.object.id)
+            }
           } else {
             onSelect(null)
           }
@@ -115,15 +153,21 @@ export const MapViewer: React.FC<MapViewerProps> = ({
         getFillColor: (d) => {
           const id = d.id
           const isSelected = String(id) === String(selectedId)
-          if (isSelected) return [255, 0, 0, 200] // Red for selected
-          return [0, 255, 0, 100] // Green for highlight
+          if (isSelected) return adjustBrightness([255, 0, 0, 200], 1.5) // Red for selected
+          return adjustBrightness([0, 255, 0, 100], 1.5) // Green for highlight
         },
         getLineColor: (d) => {
           const id = d.id
           const isSelected = String(id) === String(selectedId)
           if (isSelected)
-            return getColor(d.properties?.selected_line_color, [255, 0, 0, 255]) // Red for selected
-          return getColor(d.properties?.hover_line_color, [0, 255, 0, 200]) // Green for highlight
+            return adjustBrightness(
+              getColor(d.properties?.selected_line_color, [255, 0, 0, 255]),
+              1.5
+            ) // Red for selected
+          return adjustBrightness(
+            getColor(d.properties?.hover_line_color, [0, 255, 0, 200]),
+            1.5
+          ) // Green for highlight
         },
         getLineWidth: 2,
         getPointRadius: 6,
