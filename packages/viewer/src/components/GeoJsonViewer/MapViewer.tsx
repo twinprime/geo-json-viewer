@@ -72,11 +72,10 @@ export const MapViewer: React.FC<MapViewerProps> = ({
         lineWidthMinPixels: 1,
         pointRadiusMinPixels: 4,
 
-        // Styling - Base layer always default style (Blue/Black)
         getFillColor: (d) => {
           const baseColor = getColor(
             d.properties?.fill_color,
-            [0, 120, 255, 100]
+            [255, 255, 255, 100]
           )
           const hasSelection = selectedId !== null || highlightedId !== null
           if (hasSelection) {
@@ -91,7 +90,7 @@ export const MapViewer: React.FC<MapViewerProps> = ({
         getLineColor: (d) => {
           const baseColor = getColor(
             d.properties?.line_color,
-            [0, 120, 255, 255]
+            [255, 255, 255, 255]
           )
           const hasSelection = selectedId !== null || highlightedId !== null
           if (hasSelection) {
