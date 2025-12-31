@@ -1,7 +1,8 @@
 import React, { useState } from "react"
-import { Activity } from "lucide-react"
+import { Activity, Gauge } from "lucide-react"
 import { AltitudeGraph } from "./AltitudeGraph"
-import { ResizablePanel } from "../../common/ResizablePanel"
+import { SpeedGraph } from "./SpeedGraph"
+import { ResizablePanel, Tab } from "../../common/ResizablePanel"
 import type { Feature } from "geojson"
 
 interface BottomPanelProps {
@@ -12,12 +13,28 @@ export const BottomPanel: React.FC<BottomPanelProps> = ({ feature }) => {
   const [isExpanded, setIsExpanded] = useState(true)
   const [height, setHeight] = useState(250)
 
-  const headerContent = (
-    <>
-      <Activity size={16} className="text-blue-400" />
-      <span>Altitude Profile</span>
-    </>
-  )
+  const tabs: Tab[] = [
+    {
+      id: "altitude",
+      label: "Altitude",
+      icon: <Activity size={16} />,
+      content: (
+        <div className="h-full w-full p-4">
+          <AltitudeGraph feature={feature} />
+        </div>
+      ),
+    },
+    {
+      id: "speed",
+      label: "Speed",
+      icon: <Gauge size={16} />,
+      content: (
+        <div className="h-full w-full p-4">
+          <SpeedGraph />
+        </div>
+      ),
+    },
+  ]
 
   return (
     <ResizablePanel
@@ -28,12 +45,8 @@ export const BottomPanel: React.FC<BottomPanelProps> = ({ feature }) => {
       onExpandChange={setIsExpanded}
       minSize={150}
       maxSize={800}
-      header={headerContent}
+      tabs={tabs}
       className="border-t border-gray-700"
-    >
-      <div className="h-full w-full p-4">
-        <AltitudeGraph feature={feature} />
-      </div>
-    </ResizablePanel>
+    />
   )
 }

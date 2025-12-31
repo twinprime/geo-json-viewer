@@ -132,25 +132,27 @@ export const GeoJsonViewer: React.FC<GeoJsonViewerProps> = ({ data }) => {
         onSizeChange={setSidePanelWidth}
         isExpanded={isSidePanelExpanded}
         onExpandChange={setIsSidePanelExpanded}
-        header={
-          <>
-            <Layers size={16} className="text-blue-400" />
-            <span>Features</span>
-          </>
-        }
+        tabs={[
+          {
+            id: "features",
+            label: "Features",
+            icon: <Layers size={16} className="text-blue-400" />,
+            content: (
+              <SidePanel
+                features={features}
+                selectedId={selectedId}
+                highlightedId={highlightedId}
+                searchQuery={searchQuery}
+                onSearchChange={setSearchQuery}
+                onSelect={setSelectedId}
+                onHighlight={setHighlightedId}
+                onDoubleClick={flyToFeature}
+              />
+            ),
+          },
+        ]}
         className="border-r border-gray-700"
-      >
-        <SidePanel
-          features={features}
-          selectedId={selectedId}
-          highlightedId={highlightedId}
-          searchQuery={searchQuery}
-          onSearchChange={setSearchQuery}
-          onSelect={setSelectedId}
-          onHighlight={setHighlightedId}
-          onDoubleClick={flyToFeature}
-        />
-      </ResizablePanel>
+      />
 
       {/* Right Panel: Map View & Bottom Panel */}
       <div className="flex-1 flex flex-col relative bg-gray-800 overflow-hidden">

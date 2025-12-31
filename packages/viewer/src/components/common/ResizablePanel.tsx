@@ -1,7 +1,15 @@
 import React, { useState, useRef } from "react"
 import { ChevronUp, ChevronDown, ChevronLeft, ChevronRight } from "lucide-react"
+import { cn } from "../../utils/cn"
 
 export type PanelPosition = "left" | "right" | "bottom" | "top"
+
+export interface Tab {
+  id: string
+  label: string
+  icon?: React.ReactNode
+  content: React.ReactNode
+}
 
 interface ResizablePanelProps {
   position: PanelPosition
@@ -13,7 +21,10 @@ interface ResizablePanelProps {
   maxSize?: number
   collapsedSize?: number
   header?: React.ReactNode
-  children: React.ReactNode
+  tabs?: Tab[]
+  activeTabId?: string
+  onTabChange?: (tabId: string) => void
+  children?: React.ReactNode
   className?: string
 }
 
@@ -27,15 +38,41 @@ export const ResizablePanel: React.FC<ResizablePanelProps> = ({
   maxSize = 800,
   collapsedSize = 40,
   header,
+  tabs,
+  activeTabId: controlledActiveTabId,
+  onTabChange,
   children,
   className = "",
 }) => {
   const [isResizing, setIsResizing] = useState(false)
   const startPosRef = useRef<number>(0)
   const startSizeRef = useRef<number>(0)
+  const [internalActiveTabId, setInternalActiveTabId] = useState(
+    tabs?.[0]?.id || ""
+  )
 
   const isVertical = position === "top" || position === "bottom"
+  const isLeftRight = position === "left" || position === "right"
   const currentSize = isExpanded ? size : collapsedSize
+
+  const activeTabId =
+    controlledActiveTabId !== undefined
+      ? controlledActiveTabId
+      : internalActiveTabId
+
+  const handleTabClick = (tabId: string, e: React.MouseEvent) => {
+    e.stopPropagation()
+    if (onTabChange) {
+      onTabChange(tabId)
+    } else {
+      setInternalActiveTabId(tabId)
+    }
+    if (!isExpanded) {
+      onExpandChange(true)
+    }
+  }
+
+  const activeTab = tabs?.find((tab) => tab.id === activeTabId) || tabs?.[0]
 
   const handleMouseDown = (e: React.MouseEvent) => {
     e.preventDefault()
@@ -143,9 +180,16 @@ export const ResizablePanel: React.FC<ResizablePanelProps> = ({
 
   return (
     <div
-      className={`flex flex-col bg-gray-900 text-white shrink-0 relative ${className} ${
-        isResizing ? "" : "transition-all duration-300 ease-in-out"
-      }`}
+      className={cn(
+        "flex bg-gray-900 text-white shrink-0 relative",
+        isLeftRight
+          ? position === "right"
+            ? "flex-row-reverse"
+            : "flex-row"
+          : "flex-col",
+        className,
+        !isResizing && "transition-all duration-300 ease-in-out"
+      )}
       style={{
         width: isVertical ? "100%" : currentSize,
         height: isVertical ? currentSize : "100%",
@@ -161,34 +205,97 @@ export const ResizablePanel: React.FC<ResizablePanelProps> = ({
       )}
 
       {/* Header / Toggle Bar */}
-      {header && (
-        <button
-          className={`flex items-center justify-between px-4 bg-gray-800 cursor-pointer hover:bg-gray-700 select-none border-gray-700 w-full text-left ${
-            isVertical ? "h-10 border-b" : "h-10 border-b" // Adjust for vertical/horizontal panels?
-          }`}
-          // For side panels, maybe the header should be different?
-          // If it's a side panel, usually the header is at the top of the panel.
-          // But if collapsed, how does it look?
-          // If SidePanel collapses to left, maybe we want a vertical bar?
-          // For now, let's assume standard top-header for all panels.
-          onClick={() => onExpandChange(!isExpanded)}
-        >
-          <div className="flex items-center gap-2 text-sm font-medium overflow-hidden whitespace-nowrap">
-            {header}
-          </div>
-          <div className="text-gray-400 hover:text-white shrink-0 ml-2">
+      <div
+        className={cn(
+          "flex items-center justify-between bg-gray-800 select-none border-gray-700",
+          isVertical
+            ? "h-10 w-full border-b flex-row"
+            : "w-10 h-full border-r flex-col"
+        )}
+      >
+        {/* Toggle Button (Top for vertical layout) */}
+        {isLeftRight && (
+          <button
+            className="w-full h-10 flex items-center justify-center text-gray-400 hover:text-white hover:bg-gray-700 cursor-pointer border-b border-gray-700"
+            onClick={() => onExpandChange(!isExpanded)}
+          >
             <ToggleIcon />
-          </div>
-        </button>
-      )}
+          </button>
+        )}
+
+        {/* Tabs or Header Content */}
+        <div
+          className={cn(
+            "flex-1 flex overflow-hidden",
+            isVertical
+              ? "items-center h-full"
+              : "flex-col w-full items-center py-2 gap-2"
+          )}
+        >
+          {tabs ? (
+            <div
+              className={cn(
+                "flex",
+                isVertical ? "h-full" : "flex-col w-full items-center gap-2"
+              )}
+            >
+              {tabs.map((tab) => (
+                <button
+                  key={tab.id}
+                  onClick={(e) => handleTabClick(tab.id, e)}
+                  title={isLeftRight ? tab.label : undefined}
+                  className={cn(
+                    "text-sm font-medium transition-colors focus:outline-none flex items-center justify-center",
+                    isVertical
+                      ? "px-3 py-1 gap-2 h-full border-b-2"
+                      : "w-8 h-8 rounded-md",
+                    activeTabId === tab.id && isExpanded
+                      ? isVertical
+                        ? "text-blue-400 border-blue-400 bg-gray-700/30"
+                        : "text-blue-400 bg-gray-700/50"
+                      : "text-gray-400 border-transparent hover:text-gray-200 hover:bg-gray-700/20"
+                  )}
+                >
+                  {tab.icon}
+                  {isVertical && <span>{tab.label}</span>}
+                </button>
+              ))}
+            </div>
+          ) : (
+            <div
+              className={cn(
+                "flex items-center gap-2 px-4 text-sm font-medium overflow-hidden whitespace-nowrap w-full h-full cursor-pointer hover:bg-gray-700",
+                isLeftRight &&
+                  "justify-center [writing-mode:vertical-lr] rotate-180"
+              )}
+              onClick={() => onExpandChange(!isExpanded)}
+            >
+              {header}
+            </div>
+          )}
+        </div>
+
+        {/* Toggle Button (Right for horizontal layout) */}
+        {isVertical && (
+          <button
+            className="h-full px-3 flex items-center justify-center text-gray-400 hover:text-white hover:bg-gray-700 cursor-pointer border-l border-gray-700"
+            onClick={() => onExpandChange(!isExpanded)}
+          >
+            <ToggleIcon />
+          </button>
+        )}
+      </div>
 
       {/* Content */}
       <div
-        className={`flex-1 overflow-hidden ${
+        className={cn(
+          "flex-1 overflow-hidden",
           isExpanded ? "opacity-100" : "opacity-0"
-        }`}
+        )}
       >
-        <div className="h-full w-full relative">{children}</div>
+        <div className="h-full w-full relative">
+          {tabs ? activeTab?.content : children}
+        </div>
       </div>
     </div>
   )
