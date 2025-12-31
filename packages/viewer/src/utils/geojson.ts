@@ -3,6 +3,7 @@ import { geoCentroid } from "d3"
 
 export interface ProcessedFeature extends Feature {
   id: string | number
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   properties: Record<string, any>
 }
 
@@ -10,8 +11,8 @@ export function processGeoJSON(data: GeoJSON): {
   data: GeoJSON
   features: ProcessedFeature[]
 } {
-  let features: ProcessedFeature[] = []
-  const processedData = JSON.parse(JSON.stringify(data)) // Deep clone to avoid mutation issues if any
+  const features: ProcessedFeature[] = []
+  const processedData = structuredClone(data) // Deep clone to avoid mutation issues if any
 
   if (processedData.type === "FeatureCollection") {
     processedData.features.forEach((feature: Feature, index: number) => {
@@ -43,9 +44,7 @@ export function processGeoJSON(data: GeoJSON): {
 }
 
 function ensureId(feature: Feature, index: number) {
-  if (feature.id === undefined || feature.id === null) {
-    feature.id = `feature-${index}`
-  }
+  feature.id ??= `feature-${index}`
 }
 
 export function getFeatureBounds(
@@ -59,6 +58,7 @@ export function getFeatureBounds(
   ]
   let found = false
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   function traverse(coordinates: any[]) {
     if (typeof coordinates[0] === "number") {
       // It's a point [lon, lat] (or [lon, lat, alt])
@@ -149,7 +149,7 @@ export function getFeatureTooltipHtml(feature: ProcessedFeature): string {
 
   let rows = ""
 
-  properties.forEach(({ key, value }, index) => {
+  properties.forEach(({ key, value }) => {
     const isId = key === "ID"
     const borderClass = isId ? "border-b border-gray-800 pb-2 mb-2" : ""
 

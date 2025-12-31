@@ -1,4 +1,4 @@
-import React, { useState, useMemo, useEffect, useRef } from "react"
+import React, { useState, useMemo, useEffect } from "react"
 import type { GeoJSON } from "geojson"
 import { WebMercatorViewport } from "@math.gl/web-mercator"
 import { FlyToInterpolator } from "@deck.gl/core"

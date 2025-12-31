@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from "react"
+import React, { useState, useRef } from "react"
 import { ChevronUp, ChevronDown, ChevronLeft, ChevronRight } from "lucide-react"
 
 export type PanelPosition = "left" | "right" | "bottom" | "top"

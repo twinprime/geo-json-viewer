@@ -1,5 +1,5 @@
 import { useState } from "react"
-import { MenuBar } from "./components/Layout/MenuBar"
+import { MenuBar } from "./components/MenuBar"
 import { GeoJsonViewer } from "@geojson-viewer/viewer"
 import type { GeoJSON, Feature } from "geojson"
 

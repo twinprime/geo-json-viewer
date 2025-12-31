@@ -17,15 +17,17 @@ import type {
 import type { GeoJSON } from "geojson"
 import type { ProcessedFeature } from "../../utils/geojson"
 
+type FeatureId = string | number | null
+
 interface MapViewerProps {
   data: GeoJSON | null
   features: ProcessedFeature[]
-  selectedId: string | number | null
-  highlightedId: string | number | null
+  selectedId: FeatureId
+  highlightedId: FeatureId
   viewState: ViewState
 
-  onSelect: (id: string | number | null) => void
-  onHighlight: (id: string | number | null) => void
+  onSelect: (id: FeatureId) => void
+  onHighlight: (id: FeatureId) => void
   onViewStateChange: (viewState: ViewState) => void
 }
 
@@ -49,6 +51,7 @@ export const MapViewer: React.FC<MapViewerProps> = ({
       minZoom: 0,
       maxZoom: 19,
       tileSize: 256,
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       renderSubLayers: (props: any) => {
         const {
           bbox: { west, south, east, north },
