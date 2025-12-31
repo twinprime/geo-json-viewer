@@ -1,4 +1,4 @@
-import React, { useMemo } from "react"
+import React, { useMemo, useEffect, useRef } from "react"
 import { cn } from "../../../utils/cn"
 import { getFeatureLabel, type ProcessedFeature } from "../../../utils/geojson"
 import { ChevronRight } from "lucide-react"
@@ -22,6 +22,8 @@ export const FileTree: React.FC<FileTreeProps> = ({
   onHighlight,
   onDoubleClick,
 }) => {
+  const containerRef = useRef<HTMLDivElement>(null)
+
   const filteredFeatures = useMemo(() => {
     if (!searchQuery) return features
 
@@ -44,6 +46,17 @@ export const FileTree: React.FC<FileTreeProps> = ({
     }
   }, [features, searchQuery])
 
+  useEffect(() => {
+    if (selectedId && containerRef.current) {
+      const element = containerRef.current.querySelector(
+        `[data-id="${selectedId}"]`
+      )
+      if (element) {
+        element.scrollIntoView({ block: "center", behavior: "smooth" })
+      }
+    }
+  }, [selectedId])
+
   if (features.length === 0) {
     return (
       <div className="p-4 text-gray-500 text-sm text-center">
@@ -53,10 +66,14 @@ export const FileTree: React.FC<FileTreeProps> = ({
   }
 
   return (
-    <div className="flex flex-col max-h-full overflow-y-auto m-2">
+    <div
+      ref={containerRef}
+      className="flex flex-col max-h-full overflow-y-auto m-2"
+    >
       {filteredFeatures.map((feature) => (
         <div
           key={feature.id}
+          data-id={feature.id}
           className={cn(
             "flex w-full max-w-full",
             selectedId === feature.id
