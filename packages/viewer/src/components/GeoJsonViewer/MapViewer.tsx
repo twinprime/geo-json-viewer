@@ -2,7 +2,7 @@ import React from "react"
 import DeckGL from "@deck.gl/react"
 import { TileLayer } from "@deck.gl/geo-layers"
 import { BitmapLayer, GeoJsonLayer } from "@deck.gl/layers"
-import { getFeatureLabel } from "../../utils/geojson"
+import { getFeatureLabel, getFeatureTooltipHtml } from "../../utils/geojson"
 import { getColor, adjustBrightness } from "../../utils/colors"
 import type {
   MapViewState,
@@ -190,7 +190,13 @@ export const MapViewer: React.FC<MapViewerProps> = ({
       layers={layers}
       getTooltip={({ object }) =>
         object && {
-          html: `<div>${getFeatureLabel(object)}</div>`,
+          html: getFeatureTooltipHtml(object),
+          className: "p-0 m-0 bg-transparent shadow-none border-none", // Reset default tooltip styles if any
+          style: {
+            backgroundColor: "transparent",
+            padding: 0,
+            boxShadow: "none",
+          },
         }
       }
       style={{ position: "relative", width: "100%", height: "100%" }} // Ensure it fits container
