@@ -1,4 +1,5 @@
 import type { Feature, GeoJSON } from "geojson"
+import { geoCentroid } from "d3"
 
 export interface ProcessedFeature extends Feature {
   id: string | number
@@ -92,6 +93,12 @@ export function getFeatureLabel(feature: ProcessedFeature): string {
   if (props.name) return String(props.name)
   if (props.key) return String(props.key)
   return `Feature ${feature.id}`
+}
+
+export function getFeatureCentroid(
+  feature: ProcessedFeature
+): [number, number] {
+  return geoCentroid(feature)
 }
 
 export function getCollectionBounds(

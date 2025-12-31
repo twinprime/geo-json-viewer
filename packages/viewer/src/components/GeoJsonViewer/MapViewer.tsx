@@ -1,9 +1,14 @@
-import React from "react"
+import React, { useState } from "react"
 import DeckGL from "@deck.gl/react"
 import { TileLayer } from "@deck.gl/geo-layers"
-import { BitmapLayer, GeoJsonLayer } from "@deck.gl/layers"
-import { getFeatureTooltipHtml } from "../../utils/geojson"
+import { BitmapLayer, GeoJsonLayer, TextLayer } from "@deck.gl/layers"
+import {
+  getFeatureTooltipHtml,
+  getFeatureCentroid,
+  getFeatureLabel,
+} from "../../utils/geojson"
 import { getColor, adjustBrightness } from "../../utils/colors"
+import { Tag } from "lucide-react"
 import type {
   MapViewState,
   PickingInfo,
@@ -34,6 +39,8 @@ export const MapViewer: React.FC<MapViewerProps> = ({
   onHighlight,
   onViewStateChange,
 }) => {
+  const [showLabels, setShowLabels] = useState(true)
+
   // Layers
   const layers = [
     new TileLayer({
@@ -104,26 +111,6 @@ export const MapViewer: React.FC<MapViewerProps> = ({
           getLineColor: [selectedId, highlightedId],
         },
 
-        // Interaction
-        onClick: (info: PickingInfo) => {
-          if (info.object) {
-            if (String(info.object.id) === String(selectedId)) {
-              onSelect(null)
-            } else {
-              onSelect(info.object.id)
-            }
-          } else {
-            onSelect(null)
-          }
-        },
-        onHover: (info: PickingInfo) => {
-          if (info.object) {
-            onHighlight(info.object.id)
-          } else {
-            onHighlight(null)
-          }
-        },
-
         autoHighlight: false,
       }),
     // Separate layer for selected/highlighted features to ensure they are drawn on top
@@ -180,29 +167,79 @@ export const MapViewer: React.FC<MapViewerProps> = ({
           getLineColor: [selectedId, highlightedId],
         },
       }),
+    showLabels &&
+      new TextLayer({
+        id: "text-layer",
+        data: features,
+        pickable: true,
+        getPosition: (d) => getFeatureCentroid(d),
+        getText: (d) => getFeatureLabel(d),
+        getSize: 12,
+        getColor: [255, 255, 255, 255],
+        getAngle: 0,
+        getTextAnchor: "middle",
+        getAlignmentBaseline: "center",
+        fontFamily: "Inter, system-ui, sans-serif",
+        background: true,
+        getBackgroundColor: [0, 0, 0, 100],
+        backgroundPadding: [4, 2],
+      }),
   ].filter(Boolean)
 
   return (
-    <DeckGL
-      initialViewState={viewState} // Initial view state ignored if viewState is provided controlled.
-      viewState={viewState}
-      onViewStateChange={({ viewState }) =>
-        onViewStateChange(viewState as MapViewState)
-      }
-      controller={true}
-      layers={layers}
-      getTooltip={({ object }) =>
-        object && {
-          html: getFeatureTooltipHtml(object),
-          className: "p-0 m-0 bg-transparent shadow-none border-none", // Reset default tooltip styles if any
-          style: {
-            backgroundColor: "transparent",
-            padding: 0,
-            boxShadow: "none",
-          },
+    <div className="relative w-full h-full group">
+      <DeckGL
+        initialViewState={viewState} // Initial view state ignored if viewState is provided controlled.
+        viewState={viewState}
+        onViewStateChange={({ viewState }) =>
+          onViewStateChange(viewState as MapViewState)
         }
-      }
-      style={{ position: "relative", width: "100%", height: "100%" }} // Ensure it fits container
-    />
+        controller={true}
+        layers={layers}
+        onClick={(info: PickingInfo) => {
+          if (info.object) {
+            if (String(info.object.id) === String(selectedId)) {
+              onSelect(null)
+            } else {
+              onSelect(info.object.id)
+            }
+          } else {
+            onSelect(null)
+          }
+        }}
+        onHover={(info: PickingInfo) => {
+          if (info.object) {
+            onHighlight(info.object.id)
+          } else {
+            onHighlight(null)
+          }
+        }}
+        getTooltip={({ object }) =>
+          object && {
+            html: getFeatureTooltipHtml(object),
+            className: "p-0 m-0 bg-transparent shadow-none border-none", // Reset default tooltip styles if any
+            style: {
+              backgroundColor: "transparent",
+              padding: 0,
+              boxShadow: "none",
+            },
+          }
+        }
+        style={{ position: "relative", width: "100%", height: "100%" }} // Ensure it fits container
+      />
+      <div className="absolute top-4 right-4 z-10">
+        <button
+          onClick={() => setShowLabels(!showLabels)}
+          className={`p-2 rounded-md shadow-md transition-colors ${
+            showLabels
+              ? "bg-blue-600 text-white hover:bg-blue-700"
+              : "bg-gray-800 text-gray-300 hover:bg-gray-700"
+          }`}
+          title="Toggle Labels"
+        >
+          <Tag size={20} />
+        </button>
+      </div>
+    </div>
   )
 }
