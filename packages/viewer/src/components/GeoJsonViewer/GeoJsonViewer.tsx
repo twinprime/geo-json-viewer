@@ -6,6 +6,7 @@ import type { MapViewState } from "@deck.gl/core"
 
 import { MapViewer } from "./MapViewer"
 import { SidePanel } from "./SidePanel/SidePanel"
+import { BottomPanel } from "./BottomPanel/BottomPanel"
 import {
   processGeoJSON,
   getFeatureBounds,
@@ -43,6 +44,11 @@ export const GeoJsonViewer: React.FC<GeoJsonViewerProps> = ({ data }) => {
     const processed = processGeoJSON(data)
     return processed.features
   }, [data])
+
+  const selectedFeature = useMemo(() => {
+    if (!selectedId) return null
+    return features.find((f) => String(f.id) === String(selectedId)) || null
+  }, [features, selectedId])
 
   // Resize Logic
   const startResize = (e: React.MouseEvent) => {
@@ -173,18 +179,21 @@ export const GeoJsonViewer: React.FC<GeoJsonViewerProps> = ({ data }) => {
         />
       </div>
 
-      {/* Right Panel: Map View */}
-      <div className="flex-1 relative bg-gray-800 overflow-hidden">
-        <MapViewer
-          data={data}
-          features={features}
-          selectedId={selectedId}
-          highlightedId={highlightedId}
-          viewState={viewState}
-          onSelect={setSelectedId}
-          onHighlight={setHighlightedId}
-          onViewStateChange={setViewState}
-        />
+      {/* Right Panel: Map View & Bottom Panel */}
+      <div className="flex-1 flex flex-col relative bg-gray-800 overflow-hidden">
+        <div className="flex-1 relative overflow-hidden">
+          <MapViewer
+            data={data}
+            features={features}
+            selectedId={selectedId}
+            highlightedId={highlightedId}
+            viewState={viewState}
+            onSelect={setSelectedId}
+            onHighlight={setHighlightedId}
+            onViewStateChange={setViewState}
+          />
+        </div>
+        <BottomPanel feature={selectedFeature} />
       </div>
     </div>
   )
