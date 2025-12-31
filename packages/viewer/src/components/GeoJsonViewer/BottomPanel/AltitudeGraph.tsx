@@ -61,7 +61,7 @@ export const AltitudeGraph: React.FC<AltitudeGraphProps> = ({ feature }) => {
       return
     }
 
-    const margin = { top: 20, right: 30, bottom: 30, left: 40 }
+    const margin = { top: 20, right: 30, bottom: 40, left: 50 }
 
     const updateChart = () => {
       const width = container.clientWidth - margin.left - margin.right
@@ -90,12 +90,17 @@ export const AltitudeGraph: React.FC<AltitudeGraphProps> = ({ feature }) => {
       svg
         .append("g")
         .attr("transform", `translate(0,${height})`)
-        .call(d3.axisBottom(x))
+        .call(
+          d3
+            .axisBottom(x)
+            .tickFormat(d3.timeFormat("%d %b %H:%M") as any)
+            .ticks(5)
+        )
 
-      // Y axis
+      // Y axis (Flight Levels = feet / 100)
       const y = d3
         .scaleLinear()
-        .domain([0, d3.max(data, (d) => d.altitude) as number])
+        .domain([0, d3.max(data, (d) => d.altitude / 100) as number])
         .range([height, 0])
 
       svg.append("g").call(d3.axisLeft(y))
@@ -112,7 +117,7 @@ export const AltitudeGraph: React.FC<AltitudeGraphProps> = ({ feature }) => {
           d3
             .line<DataPoint>()
             .x((d) => x(d.time))
-            .y((d) => y(d.altitude))
+            .y((d) => y(d.altitude / 100))
         )
     }
 
