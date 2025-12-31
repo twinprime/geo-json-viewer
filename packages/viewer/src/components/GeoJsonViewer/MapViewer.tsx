@@ -67,12 +67,10 @@ export const MapViewer: React.FC<MapViewerProps> = ({
 
         // Styling - Base layer always default style (Blue/Black)
         getFillColor: (d) => {
-          const baseColor = [0, 120, 255, 100] as [
-            number,
-            number,
-            number,
-            number,
-          ]
+          const baseColor = getColor(
+            d.properties?.fill_color,
+            [0, 120, 255, 100]
+          )
           const hasSelection = selectedId !== null || highlightedId !== null
           if (hasSelection) {
             const isSelected = String(d.id) === String(selectedId)
@@ -86,7 +84,7 @@ export const MapViewer: React.FC<MapViewerProps> = ({
         getLineColor: (d) => {
           const baseColor = getColor(
             d.properties?.line_color,
-            [255, 255, 255, 255]
+            [0, 120, 255, 255]
           )
           const hasSelection = selectedId !== null || highlightedId !== null
           if (hasSelection) {
@@ -154,20 +152,25 @@ export const MapViewer: React.FC<MapViewerProps> = ({
           const id = d.id
           const isSelected = String(id) === String(selectedId)
           if (isSelected) return adjustBrightness([255, 0, 0, 200], 1.5) // Red for selected
-          return adjustBrightness([0, 255, 0, 100], 1.5) // Green for highlight
+
+          // Use original fill color but brighter for highlight
+          const baseColor = getColor(
+            d.properties?.fill_color,
+            [0, 120, 255, 100]
+          )
+          return adjustBrightness(baseColor, 1.5)
         },
         getLineColor: (d) => {
           const id = d.id
           const isSelected = String(id) === String(selectedId)
-          if (isSelected)
-            return adjustBrightness(
-              getColor(d.properties?.selected_line_color, [255, 0, 0, 255]),
-              1.5
-            ) // Red for selected
-          return adjustBrightness(
-            getColor(d.properties?.hover_line_color, [0, 255, 0, 200]),
-            1.5
-          ) // Green for highlight
+          if (isSelected) return adjustBrightness([255, 0, 0, 255], 1.5) // Red for selected
+
+          // Use original line color but brighter for highlight
+          const baseColor = getColor(
+            d.properties?.line_color,
+            [0, 120, 255, 255]
+          )
+          return adjustBrightness(baseColor, 1.5)
         },
         getLineWidth: 2,
         getPointRadius: 6,

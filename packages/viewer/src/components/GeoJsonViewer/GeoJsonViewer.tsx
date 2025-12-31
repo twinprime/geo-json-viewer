@@ -3,10 +3,12 @@ import type { GeoJSON } from "geojson"
 import { WebMercatorViewport } from "@math.gl/web-mercator"
 import { FlyToInterpolator } from "@deck.gl/core"
 import type { MapViewState } from "@deck.gl/core"
+import { Layers } from "lucide-react"
 
 import { MapViewer } from "./MapViewer"
 import { SidePanel } from "./SidePanel/SidePanel"
 import { BottomPanel } from "./BottomPanel/BottomPanel"
+import { ResizablePanel } from "../common/ResizablePanel"
 import {
   processGeoJSON,
   getFeatureBounds,
@@ -34,9 +36,7 @@ export const GeoJsonViewer: React.FC<GeoJsonViewerProps> = ({ data }) => {
   const [searchQuery, setSearchQuery] = useState("")
   const [viewState, setViewState] = useState<MapViewState>(INITIAL_VIEW_STATE)
   const [sidePanelWidth, setSidePanelWidth] = useState(320)
-  const [isDragging, setIsDragging] = useState(false)
-  const startXRef = useRef<number>(0)
-  const startWidthRef = useRef<number>(0)
+  const [isSidePanelExpanded, setIsSidePanelExpanded] = useState(true)
 
   // Derived State
   const features = useMemo(() => {
@@ -50,39 +50,9 @@ export const GeoJsonViewer: React.FC<GeoJsonViewerProps> = ({ data }) => {
     return features.find((f) => String(f.id) === String(selectedId)) || null
   }, [features, selectedId])
 
-  // Resize Logic
-  const startResize = (e: React.MouseEvent) => {
-    setIsDragging(true)
-    startXRef.current = e.clientX
-    startWidthRef.current = sidePanelWidth
-    document.body.style.cursor = "col-resize"
+  const getMapWidth = () => {
+    return window.innerWidth - (isSidePanelExpanded ? sidePanelWidth : 40)
   }
-
-  useEffect(() => {
-    if (!isDragging) return
-
-    const onMouseMove = (e: MouseEvent) => {
-      const deltaX = e.clientX - startXRef.current
-      const newWidth = Math.max(
-        200,
-        Math.min(startWidthRef.current + deltaX, 800)
-      ) // Limits: 200px - 800px
-      setSidePanelWidth(newWidth)
-    }
-
-    const onMouseUp = () => {
-      setIsDragging(false)
-      document.body.style.cursor = "default"
-    }
-
-    window.addEventListener("mousemove", onMouseMove)
-    window.addEventListener("mouseup", onMouseUp)
-
-    return () => {
-      window.removeEventListener("mousemove", onMouseMove)
-      window.removeEventListener("mouseup", onMouseUp)
-    }
-  }, [isDragging])
 
   // Effects
   useEffect(() => {
@@ -91,7 +61,7 @@ export const GeoJsonViewer: React.FC<GeoJsonViewerProps> = ({ data }) => {
       const bounds = getCollectionBounds(features)
       if (bounds) {
         // Calculate map width based on layout
-        const mapWidth = window.innerWidth - sidePanelWidth
+        const mapWidth = getMapWidth()
 
         const viewport = new WebMercatorViewport({
           width: mapWidth,
@@ -118,7 +88,7 @@ export const GeoJsonViewer: React.FC<GeoJsonViewerProps> = ({ data }) => {
     } else {
       // Reset or keep? Maybe keep for now.
     }
-  }, [features]) // Trigger on features change (data change)
+  }, [features, isSidePanelExpanded, sidePanelWidth]) // Trigger on layout change too
 
   // Actions
   const flyToFeature = (id: string | number) => {
@@ -128,7 +98,7 @@ export const GeoJsonViewer: React.FC<GeoJsonViewerProps> = ({ data }) => {
     const bounds = getFeatureBounds(feature)
     if (!bounds) return
 
-    const mapWidth = window.innerWidth - sidePanelWidth
+    const mapWidth = getMapWidth()
 
     const viewport = new WebMercatorViewport({
       width: mapWidth,
@@ -156,9 +126,19 @@ export const GeoJsonViewer: React.FC<GeoJsonViewerProps> = ({ data }) => {
   return (
     <div className="flex overflow-hidden h-full w-full">
       {/* Left Panel: Resizable */}
-      <div
-        className="border-r border-gray-700 bg-gray-900 flex flex-col shrink-0 relative"
-        style={{ width: sidePanelWidth }}
+      <ResizablePanel
+        position="left"
+        size={sidePanelWidth}
+        onSizeChange={setSidePanelWidth}
+        isExpanded={isSidePanelExpanded}
+        onExpandChange={setIsSidePanelExpanded}
+        header={
+          <>
+            <Layers size={16} className="text-blue-400" />
+            <span>Features</span>
+          </>
+        }
+        className="border-r border-gray-700"
       >
         <SidePanel
           features={features}
@@ -170,14 +150,7 @@ export const GeoJsonViewer: React.FC<GeoJsonViewerProps> = ({ data }) => {
           onHighlight={setHighlightedId}
           onDoubleClick={flyToFeature}
         />
-
-        {/* Resizer Handle */}
-        <div
-          className="absolute right-0 top-0 bottom-0 w-1 bg-transparent hover:bg-blue-500 cursor-col-resize z-50 transition-colors"
-          onMouseDown={startResize}
-          style={{ right: "-2px", width: "4px" }} // Slightly wider capture area
-        />
-      </div>
+      </ResizablePanel>
 
       {/* Right Panel: Map View & Bottom Panel */}
       <div className="flex-1 flex flex-col relative bg-gray-800 overflow-hidden">

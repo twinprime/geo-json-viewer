@@ -155,7 +155,7 @@ export function getFeatureTooltipHtml(feature: ProcessedFeature): string {
   })
 
   return `
-    <div class="bg-gray-900 text-gray-200 p-3 rounded shadow-lg max-w-sm border border-gray-700">
+    <div class="bg-gray-900/25 text-gray-200 p-3 rounded shadow-lg max-w-sm border border-gray-700">
       <div class="font-semibold border-b border-gray-800 pb-2 mb-2 bg-gray-800/50 -mx-3 -mt-3 px-3 py-2 rounded-t truncate">${title}</div>
       <div class="space-y-1">
         ${rows}
