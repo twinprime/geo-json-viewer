@@ -2,7 +2,7 @@ import React from "react"
 import DeckGL from "@deck.gl/react"
 import { TileLayer } from "@deck.gl/geo-layers"
 import { BitmapLayer, GeoJsonLayer } from "@deck.gl/layers"
-import { getFeatureLabel, getFeatureTooltipHtml } from "../../utils/geojson"
+import { getFeatureTooltipHtml } from "../../utils/geojson"
 import { getColor, adjustBrightness } from "../../utils/colors"
 import type {
   MapViewState,
