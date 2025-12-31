@@ -1,5 +1,6 @@
 import React, { useEffect, useRef, useMemo } from "react"
 import * as d3 from "d3"
+import { RotateCcw } from "lucide-react"
 import type { Feature, LineString, MultiLineString, Position } from "geojson"
 
 interface DataPoint {
@@ -31,11 +32,9 @@ const extractDataPoints = (feature: Feature | null): DataPoint[] => {
   }
 
   if (feature.geometry.type === "LineString") {
-    processLineString((feature.geometry as LineString).coordinates)
+    processLineString(feature.geometry.coordinates)
   } else if (feature.geometry.type === "MultiLineString") {
-    ;(feature.geometry as MultiLineString).coordinates.forEach((line) =>
-      processLineString(line)
-    )
+    feature.geometry.coordinates.forEach((line) => processLineString(line))
   }
 
   return points.sort((a, b) => a.time.getTime() - b.time.getTime())
@@ -43,6 +42,7 @@ const extractDataPoints = (feature: Feature | null): DataPoint[] => {
 
 export const AltitudeGraph: React.FC<AltitudeGraphProps> = ({ feature }) => {
   const containerRef = useRef<HTMLDivElement>(null)
+  const resetZoomRef = useRef<() => void>(() => {})
   const data = useMemo(() => extractDataPoints(feature), [feature])
 
   useEffect(() => {
@@ -63,7 +63,7 @@ export const AltitudeGraph: React.FC<AltitudeGraphProps> = ({ feature }) => {
 
     const margin = { top: 20, right: 30, bottom: 40, left: 50 }
 
-    const updateChart = () => {
+    const drawChart = () => {
       const width = container.clientWidth - margin.left - margin.right
       const height = container.clientHeight - margin.top - margin.bottom
 
@@ -71,65 +71,166 @@ export const AltitudeGraph: React.FC<AltitudeGraphProps> = ({ feature }) => {
 
       // Re-select or create SVG
       d3.select(container).selectAll("svg").remove()
-      d3.select(container).selectAll("div").remove() // Remove "no data" message if present
+      d3.select(container).selectAll("div").remove()
 
       const svg = d3
         .select(container)
         .append("svg")
         .attr("width", width + margin.left + margin.right)
         .attr("height", height + margin.top + margin.bottom)
+
+      // Define clip path
+      svg
+        .append("defs")
+        .append("clipPath")
+        .attr("id", "clip")
+        .append("rect")
+        .attr("width", width)
+        .attr("height", height)
+
+      const g = svg
         .append("g")
         .attr("transform", `translate(${margin.left},${margin.top})`)
 
-      // X axis
-      const x = d3
+      // Base scales
+      const xBase = d3
         .scaleTime()
         .domain(d3.extent(data, (d) => d.time) as [Date, Date])
         .range([0, width])
 
-      svg
-        .append("g")
-        .attr("transform", `translate(0,${height})`)
-        .call(
-          d3
-            .axisBottom(x)
-            .tickFormat(d3.timeFormat("%d %b %H:%M") as any)
-            .ticks(5)
-        )
-
-      // Y axis (Flight Levels = feet / 100)
-      const y = d3
+      const yBase = d3
         .scaleLinear()
         .domain([0, d3.max(data, (d) => d.altitude / 100) as number])
         .range([height, 0])
 
-      svg.append("g").call(d3.axisLeft(y))
+      // Axes groups
+      const xAxisGroup = g
+        .append("g")
+        .attr("class", "x-axis")
+        .attr("transform", `translate(0,${height})`)
 
-      // Add the line
-      svg
+      const yAxisGroup = g.append("g").attr("class", "y-axis")
+
+      // Line path
+      const path = g
         .append("path")
         .datum(data)
+        .attr("class", "line")
         .attr("fill", "none")
         .attr("stroke", "steelblue")
         .attr("stroke-width", 1.5)
-        .attr(
+        .attr("clip-path", "url(#clip)")
+
+      // Zoom Rects
+      // 1. Main Zoom Rect (Chart Area)
+      const mainZoomRect = g
+        .append("rect")
+        .attr("width", width)
+        .attr("height", height)
+        .attr("fill", "transparent")
+        .style("cursor", "move")
+
+      // 2. X-Axis Zoom Rect
+      const xAxisZoomRect = g
+        .append("rect")
+        .attr("width", width)
+        .attr("height", margin.bottom)
+        .attr("transform", `translate(0,${height})`)
+        .attr("fill", "transparent")
+        .style("cursor", "col-resize")
+
+      // 3. Y-Axis Zoom Rect
+      const yAxisZoomRect = g
+        .append("rect")
+        .attr("width", margin.left)
+        .attr("height", height)
+        .attr("transform", `translate(${-margin.left},0)`)
+        .attr("fill", "transparent")
+        .style("cursor", "row-resize")
+
+      // Update function
+      const update = () => {
+        // Get current transforms
+        const tMain = d3.zoomTransform(mainZoomRect.node()!)
+        const tX = d3.zoomTransform(xAxisZoomRect.node()!)
+        const tY = d3.zoomTransform(yAxisZoomRect.node()!)
+
+        // Rescale scales
+        // Apply axis zooms first, then main zoom
+        const xNew = tMain.rescaleX(tX.rescaleX(xBase))
+        const yNew = tMain.rescaleY(tY.rescaleY(yBase))
+
+        // Update axes
+        xAxisGroup.call(
+          d3.axisBottom(xNew).tickFormat(d3.timeFormat("%d %b %H:%M")).ticks(5)
+        )
+        yAxisGroup.call(d3.axisLeft(yNew))
+
+        // Update line
+        path.attr(
           "d",
           d3
             .line<DataPoint>()
-            .x((d) => x(d.time))
-            .y((d) => y(d.altitude / 100))
+            .x((d) => xNew(d.time))
+            .y((d) => yNew(d.altitude / 100))
         )
+      }
+
+      // Zoom behaviors
+      const zoomMain = d3
+        .zoom<SVGRectElement, unknown>()
+        .scaleExtent([0.5, 20])
+        .on("zoom", update)
+
+      const zoomX = d3
+        .zoom<SVGRectElement, unknown>()
+        .scaleExtent([0.5, 20])
+        .on("zoom", update)
+
+      const zoomY = d3
+        .zoom<SVGRectElement, unknown>()
+        .scaleExtent([0.5, 20])
+        .on("zoom", update)
+
+      // Attach zooms
+      mainZoomRect.call(zoomMain)
+      xAxisZoomRect.call(zoomX)
+      yAxisZoomRect.call(zoomY)
+
+      // Setup reset function
+      resetZoomRef.current = () => {
+        const t = d3.zoomIdentity
+        mainZoomRect.transition().duration(750).call(zoomMain.transform, t)
+        xAxisZoomRect.transition().duration(750).call(zoomX.transform, t)
+        yAxisZoomRect.transition().duration(750).call(zoomY.transform, t)
+      }
+
+      // Initial update
+      update()
     }
 
-    updateChart()
+    drawChart()
 
     const resizeObserver = new ResizeObserver(() => {
-      updateChart()
+      drawChart()
     })
     resizeObserver.observe(container)
 
     return () => resizeObserver.disconnect()
   }, [data])
 
-  return <div ref={containerRef} className="w-full h-full min-h-[150px]" />
+  return (
+    <div className="relative w-full h-full min-h-[150px] group">
+      <div ref={containerRef} className="w-full h-full" />
+      {data.length > 0 && (
+        <button
+          onClick={() => resetZoomRef.current()}
+          className="absolute top-2 right-4 bg-gray-800/80 hover:bg-gray-700 text-white p-1.5 rounded-md shadow-sm border border-gray-600 opacity-0 group-hover:opacity-100 transition-opacity"
+          title="Reset Zoom"
+        >
+          <RotateCcw size={16} />
+        </button>
+      )}
+    </div>
+  )
 }
