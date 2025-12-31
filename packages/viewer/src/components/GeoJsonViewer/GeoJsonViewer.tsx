@@ -13,6 +13,7 @@ import {
   processGeoJSON,
   getFeatureBounds,
   getCollectionBounds,
+  type FeatureId,
 } from "../../utils/geojson"
 
 interface GeoJsonViewerProps {
@@ -29,8 +30,8 @@ const INITIAL_VIEW_STATE: MapViewState = {
 
 export const GeoJsonViewer: React.FC<GeoJsonViewerProps> = ({ data }) => {
   // State
-  const [selectedId, setSelectedId] = useState<string | number | null>(null)
-  const [highlightedId, setHighlightedId] = useState<string | number | null>(
+  const [selectedId, setSelectedId] = useState<FeatureId | null>(null)
+  const [highlightedId, setHighlightedId] = useState<FeatureId | null>(
     null
   )
   const [searchQuery, setSearchQuery] = useState("")
@@ -91,7 +92,7 @@ export const GeoJsonViewer: React.FC<GeoJsonViewerProps> = ({ data }) => {
   }, [features, isSidePanelExpanded, sidePanelWidth]) // Trigger on layout change too
 
   // Actions
-  const flyToFeature = (id: string | number) => {
+  const flyToFeature = (id: FeatureId) => {
     const feature = features.find((f) => String(f.id) === String(id))
     if (!feature) return
 

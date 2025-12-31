@@ -15,19 +15,17 @@ import type {
   MapViewState as ViewState,
 } from "@deck.gl/core"
 import type { GeoJSON } from "geojson"
-import type { ProcessedFeature } from "../../utils/geojson"
-
-type FeatureId = string | number | null
+import type { ProcessedFeature, FeatureId } from "../../utils/geojson"
 
 interface MapViewerProps {
   data: GeoJSON | null
   features: ProcessedFeature[]
-  selectedId: FeatureId
-  highlightedId: FeatureId
+  selectedId: FeatureId | null
+  highlightedId: FeatureId | null
   viewState: ViewState
 
-  onSelect: (id: FeatureId) => void
-  onHighlight: (id: FeatureId) => void
+  onSelect: (id: FeatureId | null) => void
+  onHighlight: (id: FeatureId | null) => void
   onViewStateChange: (viewState: ViewState) => void
 }
 

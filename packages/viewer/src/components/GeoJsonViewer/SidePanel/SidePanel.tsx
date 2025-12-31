@@ -2,18 +2,18 @@ import React from "react"
 import { SearchBar } from "./SearchBar"
 import { FileTree } from "./FileTree"
 import { FeatureDetails } from "./FeatureDetails"
-import { type ProcessedFeature } from "../../../utils/geojson"
+import { type ProcessedFeature, type FeatureId } from "../../../utils/geojson"
 
 interface SidePanelProps {
   features: ProcessedFeature[]
-  selectedId: string | number | null
-  highlightedId: string | number | null
+  selectedId: FeatureId | null
+  highlightedId: FeatureId | null
   searchQuery: string
 
   onSearchChange: (query: string) => void
-  onSelect: (id: string | number | null) => void
-  onHighlight: (id: string | number | null) => void
-  onDoubleClick: (id: string | number) => void
+  onSelect: (id: FeatureId | null) => void
+  onHighlight: (id: FeatureId | null) => void
+  onDoubleClick: (id: FeatureId) => void
 }
 
 export const SidePanel: React.FC<SidePanelProps> = ({

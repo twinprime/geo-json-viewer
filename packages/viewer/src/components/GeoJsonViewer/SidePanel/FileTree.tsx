@@ -1,16 +1,20 @@
 import React, { useMemo, useEffect, useRef } from "react"
 import { cn } from "../../../utils/cn"
-import { getFeatureLabel, type ProcessedFeature } from "../../../utils/geojson"
+import {
+  getFeatureLabel,
+  type ProcessedFeature,
+  type FeatureId,
+} from "../../../utils/geojson"
 import { ChevronRight } from "lucide-react"
 
 interface FileTreeProps {
   features: ProcessedFeature[]
-  selectedId: string | number | null
-  highlightedId: string | number | null
+  selectedId: FeatureId | null
+  highlightedId: FeatureId | null
   searchQuery: string
-  onSelect: (id: string | number | null) => void
-  onHighlight: (id: string | number | null) => void
-  onDoubleClick: (id: string | number) => void
+  onSelect: (id: FeatureId | null) => void
+  onHighlight: (id: FeatureId | null) => void
+  onDoubleClick: (id: FeatureId) => void
 }
 
 export const FileTree: React.FC<FileTreeProps> = ({

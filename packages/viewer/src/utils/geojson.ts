@@ -1,8 +1,10 @@
 import type { Feature, GeoJSON } from "geojson"
 import { geoCentroid } from "d3"
 
+export type FeatureId = string | number
+
 export interface ProcessedFeature extends Feature {
-  id: string | number
+  id: FeatureId
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   properties: Record<string, any>
 }
