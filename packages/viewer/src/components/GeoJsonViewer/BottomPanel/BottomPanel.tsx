@@ -30,7 +30,7 @@ export const BottomPanel: React.FC<BottomPanelProps> = ({ feature }) => {
       icon: <Gauge size={16} />,
       content: (
         <div className="h-full w-full p-4">
-          <SpeedGraph />
+          <SpeedGraph feature={feature} />
         </div>
       ),
     },
