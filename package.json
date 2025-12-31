@@ -8,7 +8,7 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "tsc -b && vite build",
+    "build": "npm run build -w @geojson-viewer/viewer && npm run build -w @geojson-viewer/app",
     "lint": "eslint .",
     "preview": "vite preview"
   },
