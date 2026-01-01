@@ -196,6 +196,9 @@ export const MapViewer: React.FC<MapViewerProps> = ({
         }
         controller={true}
         layers={layers}
+        getCursor={({ isHovering, isDragging }) =>
+          isDragging ? "grabbing" : isHovering ? "pointer" : "grab"
+        }
         onClick={(info: PickingInfo) => {
           if (info.object) {
             if (String(info.object.id) === String(selectedId)) {
