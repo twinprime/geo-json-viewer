@@ -11,14 +11,12 @@ interface LineChartProps {
   data: ChartDataPoint[]
   color?: string
   emptyMessage?: string
-  xAxisTickFormat?: string
 }
 
 const renderChart = (
   container: HTMLDivElement,
   data: ChartDataPoint[],
   color: string,
-  xAxisTickFormat: string,
   onResetZoomReady: (reset: () => void) => void
 ) => {
   const margin = { top: 20, right: 30, bottom: 40, left: 50 }
@@ -121,10 +119,28 @@ const renderChart = (
     const yNew = tMain.rescaleY(tY.rescaleY(yBase))
 
     // Update axes
+    const ticks = xNew.ticks(Math.max(2, Math.floor(width / 80)))
+    let showSeconds = false
+    if (ticks.length >= 2) {
+      const interval = ticks[1].getTime() - ticks[0].getTime()
+      showSeconds = interval < 60000
+    }
+
+    let lastDateStr = ""
     const xAxis = d3
       .axisBottom(xNew)
-      .tickFormat((d) => d3.timeFormat(xAxisTickFormat)(d as Date))
-      .ticks(5)
+      .tickFormat((d, i) => {
+        const date = d as Date
+        const dateStr = d3.timeFormat("%Y-%m-%d")(date)
+        const format = showSeconds ? "%H:%M:%S" : "%H:%M"
+        const timeStr = d3.timeFormat(format)(date)
+        if (i === 0 || dateStr !== lastDateStr) {
+          lastDateStr = dateStr
+          return `${dateStr} ${timeStr}`
+        }
+        return timeStr
+      })
+      .ticks(Math.max(2, Math.floor(width / 80)))
 
     xAxisGroup.call(xAxis)
     yAxisGroup.call(d3.axisLeft(yNew))
@@ -176,7 +192,6 @@ export const LineChart: React.FC<LineChartProps> = ({
   data,
   color = "steelblue",
   emptyMessage = "No data available",
-  xAxisTickFormat = "%H:%M",
 }) => {
   const containerRef = useRef<HTMLDivElement>(null)
   const resetZoomRef = useRef<() => void>(() => {})
@@ -198,7 +213,7 @@ export const LineChart: React.FC<LineChartProps> = ({
     }
 
     const handleResize = () => {
-      renderChart(container, data, color, xAxisTickFormat, (reset) => {
+      renderChart(container, data, color, (reset) => {
         resetZoomRef.current = reset
       })
     }
@@ -209,7 +224,7 @@ export const LineChart: React.FC<LineChartProps> = ({
     resizeObserver.observe(container)
 
     return () => resizeObserver.disconnect()
-  }, [data, color, emptyMessage, xAxisTickFormat])
+  }, [data, color, emptyMessage])
 
   return (
     <div className="relative w-full h-full min-h-[150px] group">

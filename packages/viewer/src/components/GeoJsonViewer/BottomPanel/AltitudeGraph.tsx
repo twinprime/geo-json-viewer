@@ -42,7 +42,6 @@ export const AltitudeGraph: React.FC<AltitudeGraphProps> = ({ feature }) => {
       data={data}
       color="steelblue"
       emptyMessage="No altitude profile available for selected feature"
-      xAxisTickFormat="%d %b %H:%M"
     />
   )
 }

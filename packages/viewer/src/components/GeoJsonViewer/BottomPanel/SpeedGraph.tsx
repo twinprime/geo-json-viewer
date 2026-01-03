@@ -71,7 +71,6 @@ export const SpeedGraph: React.FC<SpeedGraphProps> = ({ feature }) => {
       data={data}
       color="#10b981"
       emptyMessage="No speed profile available for selected feature"
-      xAxisTickFormat="%d %b %H:%M"
     />
   )
 }
