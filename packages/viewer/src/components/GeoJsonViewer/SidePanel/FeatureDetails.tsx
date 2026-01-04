@@ -1,4 +1,4 @@
-import React from "react"
+import React, { memo } from "react"
 import {
   type ProcessedFeature,
   getFeatureLabel,
@@ -9,49 +9,49 @@ interface FeatureDetailsProps {
   selectedFeature: ProcessedFeature | undefined
 }
 
-export const FeatureDetails: React.FC<FeatureDetailsProps> = ({
-  selectedFeature,
-}) => {
-  const selectedId = selectedFeature?.id
+export const FeatureDetails: React.FC<FeatureDetailsProps> = memo(
+  ({ selectedFeature }) => {
+    const selectedId = selectedFeature?.id
 
-  if (!selectedId || !selectedFeature) {
+    if (!selectedId || !selectedFeature) {
+      return (
+        <div className="h-1/3 shrink-0 bg-gray-900 border-t border-gray-700 p-4 text-sm text-gray-500 flex items-center justify-center italic">
+          Select a feature to view details
+        </div>
+      )
+    }
+
     return (
-      <div className="h-1/3 shrink-0 bg-gray-900 border-t border-gray-700 p-4 text-sm text-gray-500 flex items-center justify-center italic">
-        Select a feature to view details
+      <div className="min-h-[200px] shrink-0 bg-gray-900 border-t border-gray-700 flex flex-col">
+        <div className="px-4 py-2 border-b border-gray-800 font-semibold text-gray-200 bg-gray-800/50 truncate">
+          {selectedFeature ? getFeatureLabel(selectedFeature) : "Properties"}
+        </div>
+        <div className="flex-1 overflow-auto p-4">
+          <div className="space-y-2">
+            {selectedFeature &&
+              getFeatureDisplayProperties(selectedFeature).map(
+                ({ key, value }) => {
+                  const isId = key === "ID"
+                  return (
+                    <div
+                      key={key}
+                      className={`grid grid-cols-[100px_1fr] gap-2 text-sm ${
+                        isId ? "border-b border-gray-800 pb-2 mb-2" : ""
+                      }`}
+                    >
+                      <span className="text-gray-500 truncate" title={key}>
+                        {key}
+                      </span>
+                      <span className="font-mono text-gray-300 break-all">
+                        {value}
+                      </span>
+                    </div>
+                  )
+                }
+              )}
+          </div>
+        </div>
       </div>
     )
   }
-
-  return (
-    <div className="min-h-[200px] shrink-0 bg-gray-900 border-t border-gray-700 flex flex-col">
-      <div className="px-4 py-2 border-b border-gray-800 font-semibold text-gray-200 bg-gray-800/50 truncate">
-        {selectedFeature ? getFeatureLabel(selectedFeature) : "Properties"}
-      </div>
-      <div className="flex-1 overflow-auto p-4">
-        <div className="space-y-2">
-          {selectedFeature &&
-            getFeatureDisplayProperties(selectedFeature).map(
-              ({ key, value }) => {
-                const isId = key === "ID"
-                return (
-                  <div
-                    key={key}
-                    className={`grid grid-cols-[100px_1fr] gap-2 text-sm ${
-                      isId ? "border-b border-gray-800 pb-2 mb-2" : ""
-                    }`}
-                  >
-                    <span className="text-gray-500 truncate" title={key}>
-                      {key}
-                    </span>
-                    <span className="font-mono text-gray-300 break-all">
-                      {value}
-                    </span>
-                  </div>
-                )
-              }
-            )}
-        </div>
-      </div>
-    </div>
-  )
-}
+)

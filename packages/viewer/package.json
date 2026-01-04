@@ -16,12 +16,14 @@
     "clsx": "^2.1.1",
     "d3": "^7.9.0",
     "deck.gl": "^9.2.5",
+    "jexl": "^2.3.0",
     "lucide-react": "^0.562.0",
     "react": "^19.2.0",
     "react-dom": "^19.2.0",
     "tailwind-merge": "^3.4.0"
   },
   "devDependencies": {
+    "@types/jexl": "^2.3.4",
     "typescript": "~5.9.3",
     "vite": "^7.2.4",
     "vite-plugin-dts": "^4.5.4"
