@@ -31,9 +31,7 @@ const INITIAL_VIEW_STATE: MapViewState = {
 export const GeoJsonViewer: React.FC<GeoJsonViewerProps> = ({ data }) => {
   // State
   const [selectedId, setSelectedId] = useState<FeatureId | null>(null)
-  const [highlightedId, setHighlightedId] = useState<FeatureId | null>(
-    null
-  )
+  const [highlightedId, setHighlightedId] = useState<FeatureId | null>(null)
   const [searchQuery, setSearchQuery] = useState("")
   const [viewState, setViewState] = useState<MapViewState>(INITIAL_VIEW_STATE)
   const [sidePanelWidth, setSidePanelWidth] = useState(320)
