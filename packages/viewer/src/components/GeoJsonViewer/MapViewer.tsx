@@ -84,7 +84,7 @@ export const MapViewer: React.FC<MapViewerProps> = ({
             const isSelected = String(d.id) === String(selectedId)
             const isHighlighted = String(d.id) === String(highlightedId)
             if (!isSelected && !isHighlighted) {
-              return adjustBrightness(baseColor, 0.3)
+              return adjustBrightness(baseColor, 0.5)
             }
           }
           return baseColor
@@ -99,7 +99,7 @@ export const MapViewer: React.FC<MapViewerProps> = ({
             const isSelected = String(d.id) === String(selectedId)
             const isHighlighted = String(d.id) === String(highlightedId)
             if (!isSelected && !isHighlighted) {
-              return adjustBrightness(baseColor, 0.3)
+              return adjustBrightness(baseColor, 0.5)
             }
           }
           return baseColor
