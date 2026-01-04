@@ -14,11 +14,9 @@ import type {
   PickingInfo,
   MapViewState as ViewState,
 } from "@deck.gl/core"
-import type { GeoJSON } from "geojson"
 import type { ProcessedFeature, FeatureId } from "../../utils/geojson"
 
 interface MapViewerProps {
-  data: GeoJSON | null
   features: ProcessedFeature[]
   selectedId: FeatureId | null
   highlightedId: FeatureId | null
@@ -30,7 +28,6 @@ interface MapViewerProps {
 }
 
 export const MapViewer: React.FC<MapViewerProps> = ({
-  data,
   features,
   selectedId,
   highlightedId,
@@ -62,10 +59,10 @@ export const MapViewer: React.FC<MapViewerProps> = ({
         })
       },
     }),
-    data &&
+    features.length > 0 &&
       new GeoJsonLayer({
         id: "geojson-layer-base",
-        data,
+        data: features,
         pickable: true,
         stroked: true,
         filled: true,

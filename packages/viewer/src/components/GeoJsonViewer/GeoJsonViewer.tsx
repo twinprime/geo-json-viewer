@@ -46,6 +46,28 @@ export const GeoJsonViewer: React.FC<GeoJsonViewerProps> = ({ data }) => {
     return processed.features
   }, [data])
 
+  const filteredFeatures = useMemo(() => {
+    if (!searchQuery) return features
+
+    try {
+      const regex = new RegExp(searchQuery, "i")
+      return features.filter((f) => {
+        // Match against ID
+        if (regex.test(String(f.id))) return true
+        // Match against properties
+        if (f.properties) {
+          return Object.entries(f.properties).some(
+            ([key, value]) => regex.test(key) || regex.test(String(value))
+          )
+        }
+        return false
+      })
+    } catch (e) {
+      // Invalid regex, return empty
+      return []
+    }
+  }, [features, searchQuery])
+
   const selectedFeature = useMemo(() => {
     if (!selectedId) return null
     return features.find((f) => String(f.id) === String(selectedId)) || null
@@ -140,7 +162,7 @@ export const GeoJsonViewer: React.FC<GeoJsonViewerProps> = ({ data }) => {
             icon: <Layers size={16} className="text-blue-400" />,
             content: (
               <SidePanel
-                features={features}
+                features={filteredFeatures}
                 selectedId={selectedId}
                 highlightedId={highlightedId}
                 searchQuery={searchQuery}
@@ -159,8 +181,7 @@ export const GeoJsonViewer: React.FC<GeoJsonViewerProps> = ({ data }) => {
       <div className="flex-1 flex flex-col relative bg-gray-800 overflow-hidden">
         <div className="flex-1 relative overflow-hidden">
           <MapViewer
-            data={data}
-            features={features}
+            features={filteredFeatures}
             selectedId={selectedId}
             highlightedId={highlightedId}
             viewState={viewState}

@@ -1,4 +1,4 @@
-import React, { useMemo, useEffect, useRef } from "react"
+import React, { useEffect, useRef } from "react"
 import { cn } from "../../../utils/cn"
 import {
   getFeatureLabel,
@@ -28,28 +28,6 @@ export const FileTree: React.FC<FileTreeProps> = ({
 }) => {
   const containerRef = useRef<HTMLDivElement>(null)
 
-  const filteredFeatures = useMemo(() => {
-    if (!searchQuery) return features
-
-    try {
-      const regex = new RegExp(searchQuery, "i")
-      return features.filter((f) => {
-        // Match against ID
-        if (regex.test(String(f.id))) return true
-        // Match against properties
-        if (f.properties) {
-          return Object.entries(f.properties).some(
-            ([key, value]) => regex.test(key) || regex.test(String(value))
-          )
-        }
-        return false
-      })
-    } catch (e) {
-      // Invalid regex, return empty or all? Let's return empty to indicate error
-      return []
-    }
-  }, [features, searchQuery])
-
   useEffect(() => {
     if (selectedId && containerRef.current) {
       const element = containerRef.current.querySelector(
@@ -74,7 +52,7 @@ export const FileTree: React.FC<FileTreeProps> = ({
       ref={containerRef}
       className="flex flex-col max-h-full overflow-y-auto m-2"
     >
-      {filteredFeatures.map((feature) => (
+      {features.map((feature) => (
         <div
           key={feature.id}
           data-id={feature.id}
@@ -96,7 +74,7 @@ export const FileTree: React.FC<FileTreeProps> = ({
           {selectedId === feature.id && <ChevronRight size={14} />}
         </div>
       ))}
-      {filteredFeatures.length === 0 && searchQuery && (
+      {features.length === 0 && searchQuery && (
         <div className="p-4 text-gray-500 text-center text-sm">
           No matches found
         </div>
