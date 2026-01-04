@@ -72,6 +72,7 @@ export const MapViewer: React.FC<MapViewerProps> = ({
         pointType: "circle+text",
         lineWidthMinPixels: 1,
         pointRadiusMinPixels: 4,
+        wrapLongitude: true,
 
         getFillColor: (d) => {
           const baseColor = getColor(
@@ -128,6 +129,7 @@ export const MapViewer: React.FC<MapViewerProps> = ({
         pointType: "circle+text",
         lineWidthMinPixels: 2,
         pointRadiusMinPixels: 6,
+        wrapLongitude: true,
 
         // Prevent z-fighting with base layer
         parameters: {
