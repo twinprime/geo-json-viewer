@@ -57,7 +57,7 @@ export const GeoJsonViewer: React.FC<GeoJsonViewerProps> = ({ data }) => {
   useEffect(() => {
     const timer = setTimeout(() => {
       setDebouncedSearchQuery(searchQuery)
-    }, 300)
+    }, 500)
 
     return () => clearTimeout(timer)
   }, [searchQuery])
